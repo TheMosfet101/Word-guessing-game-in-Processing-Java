@@ -1,0 +1,188 @@
+// Word game
+
+String word,textType,diffword;
+boolean mouseON,typeON,diffturn,wordpause;
+int ran,score,event1,event2,event3,loadWidth,TimeDelay,wordindex,indexcheck,keycheck,cubeX,cubeY,diffX;
+int diffR,diffG,diffB = 255;
+double LastTime = 0;
+void setup(){
+  size(640,480);
+  diffword = "";
+  textType = "";
+  word = "";
+  loadWidth = 50;
+  diffX = 496;
+  TimeDelay = 1000;
+  ran = floor(random(5)); // It randomizes a whole number(Due to the "floor()" function) between 0 and 4 with the "random()" function
+  if(ran == 4){
+    word = "cat";
+  } else if(ran == 3){
+    word = "snake";
+  } else if(ran == 2){
+    word = "cucumber";
+  } else if(ran == 1) {
+    word = "orange";
+  }
+}
+void draw(){
+  background(0);
+  if(event1 == 0){
+    wordpause = true;
+  fill(255);
+  textSize(20);
+  text("Welcome to the word game:", 180,166);
+  textSize(15);
+  text("Click on the button to play:",210,218);
+  pushStyle(); // I use "PushStyle()" and "PopStyle()" to apply X/Y positions and colors to certain objects instead of it being globally
+  rectMode(CENTER); // the X/Y postions of the rectangle are in the center instead of the far left corner
+  rect(289,275,30,30);
+  popStyle();
+  if(dist(289,275,mouseX,mouseY) <= 20 && mouseON) { // I used the "dist()" function to determine if the distance between the button and the mouse's X/Y postions are less or equal to 10, and if the mouse is pressed that the program will move to the next scene
+    event2 += 1;
+  }
+} if(event2 >= 1){
+  wordpause = true; // this pauses the word being displayed as individual letters on the other screen
+  event1 = 1;
+  textSize(40);
+  text("loading...",200,230);
+  rect(6,400,loadWidth,30);
+  loadWidth += 3; 
+  if(loadWidth >= 640){
+    event3 += 2;
+  }
+}
+if(event3 == 2){
+  wordpause = false; // the words can now be displayed in "event3" by setting this boolean variable as false
+  event2 = 0;
+  textSize(15);
+  fill(255);
+  text("Score: " + score,19,23);
+  textSize(20);
+  if(indexcheck == 0 && !wordpause){ 
+    fill(255);
+    text("Loading the word...",190,150);
+  } else if(indexcheck == 1) {
+    text(word.charAt(wordindex),230,150); // If the indexcheck is equal to 1, than by using the "charAt()" function, it displays each letter of the word individually  
+  } else if(indexcheck == 2){ // when indexcheck is equal to 2, it allows the user to type out the word
+    typeON = true;
+  }
+  if(millis() - LastTime >= TimeDelay){ // using the "millis()" function, if the total time of when the program started is greater than or equal to the time delay(1000 ms), it will add to "wordindex" variable to display the letters at a certain time delay
+    wordindex += 1;
+    LastTime = millis(); 
+  }
+  if(wordindex > word.length() - 1){ // if the wordindex is greater than the length of the word, it sets the value to 0 in ensuring that it only displays letters featured in the chosen word's index without going over
+    wordindex = 0;
+    indexcheck += 1;
+  }
+  pushStyle();
+  rectMode(CENTER);
+  fill(0,255,0); 
+  rect(269,226,200,50);
+  popStyle();
+  for(int i = 0; i < 3; i++){ // I use a for loop to generate 3 squares in series with each other, in order to create the difficulty chart
+    pushStyle();
+    rectMode(CENTER);
+    fill(0);
+    strokeWeight(3);
+    stroke(255);
+    cubeX = 446 + ((100 * i) / 2); 
+    cubeY = 56;
+    rect(cubeX,cubeY,50,50);
+    popStyle();
+  }
+  pushStyle();
+  rectMode(CENTER);
+  fill(diffR,diffG,diffB); 
+  rect(diffX,cubeY,30,30);
+  textSize(18);
+  fill(diffR,diffG,diffB);
+  text(diffword + " difficulty:",435,110);
+  textSize(12);
+  fill(255);
+  text("slide the cube using your mouse to change difficulty:",375,135);
+  popStyle();
+  pushStyle();
+  rectMode(CENTER);  
+  rect(514,433,188,35);
+  textSize(15);
+  fill(0);
+  text("Press to go to main menu:",435,436);
+  popStyle();
+  if(dist(514,433,mouseX,mouseY) <= 55 && mouseON) { 
+    event1 = 0;
+    event2 = 0;
+    event3 = 0;
+    loadWidth = 50;
+}
+  if(dist(546,cubeY,mouseX,mouseY) <= 20 || dist(496,cubeY,mouseX,mouseY) <= 20 || dist(446,cubeY,mouseX,mouseY) <= 20){
+    diffturn = true; 
+  }
+  if(diffX > 546){
+    diffX -= 50;
+    diffturn = false;
+  } else if(diffX < 446){
+    diffX += 50;
+    diffturn = false;
+  }
+  if(dist(diffX,cubeY,mouseX,mouseY) <= 15 && diffturn && mouseON){
+    if(mouseX > pmouseX){ // if the current X position of the mouse is greater than the previous X postion, than it'll move the cube by 50 units to the right
+      diffX += 50;
+    } else if(mouseX < pmouseX){  // if the current X position of the mouse is less than the previous, it'll move the cube by 50 units to the left instead
+      diffX -= 50;
+    }
+  }
+  if(diffX == 446){
+    TimeDelay = 1500;
+    diffR = 0;
+    diffG = 255;
+    diffB = 0;
+    diffword = "Easy";
+  } else if(diffX == 496){
+    TimeDelay = 1000;
+    diffG = 255;
+    diffR = 255;
+    diffB = 255;
+    diffword = "Normal";
+  } else {
+    TimeDelay = 500;
+    diffR = 255;
+    diffG = 0;
+    diffB = 0;
+    diffword = "Hard";
+  }
+  fill(0);
+  text(textType + "|",230,230); 
+    if(textType.equals(word)){ // if the String value typed by the user is equal to the  chosen word by using the ".equal()" function. It'll add onto the score and redo the word and everything else again
+    score += 1;
+    indexcheck = 0;
+    typeON = false;
+    textType = "";
+    ran = floor(random(5));
+  if(ran == 4){
+    word = "cat";
+  } else if(ran == 3){
+    word = "snake";
+  } else if(ran == 2){
+    word = "cucumber";
+  } else if(ran == 1) {
+    word = "orange";
+  }
+  }
+}
+}
+void keyPressed(){
+  if(textType.length() <= word.length() && typeON && keyCode != BACKSPACE && keyCode != ENTER){ //If the length of the string value "textType" is less than or equal to the length of the chosen word (by using ".length()") while  also making sure than the key isn't Backspace and that "typeON" is true. It'll append any key entered by the user onto the "textType" variable while adding one to "keycheck"
+    textType += key;
+    keycheck += 1;
+  } else if(textType.length() > word.length()){ // if the length of "textType" is greater than the length of the chosen word, it'll prevent the user in continually typing
+  }
+  if(keyCode == BACKSPACE && textType.length() > 0){ // if the user entered the "BACKSPACE" key while making sure the length of "textType" is greater than zero, it'll use the "substring()" function to subtract the last letter of "textType" by subtracting one from it's length,
+  textType = textType.substring(0,textType.length() - 1);
+  }
+}
+void mousePressed(){
+  mouseON = true;
+}
+void mouseReleased(){
+  mouseON = false;
+}
